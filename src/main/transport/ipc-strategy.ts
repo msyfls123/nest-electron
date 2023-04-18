@@ -10,15 +10,21 @@ import {
 import { eventTransport, invokeTransport } from '../ipc/ipc-transport';
 
 export class IpcStrategy extends Server implements CustomTransportStrategy {
-  private handlerMap: Record<HandlerType, (pattern: string) => void> = {
-    [HandlerType.InvokeMessage]: this.bindIpcInvoke,
-    [HandlerType.Event]: this.bindIpcEvent,
-    [HandlerType.Subscription]: this.bindIpcSubscription,
-  };
+  private handlerMap: Partial<Record<HandlerType, (pattern: string) => void>> =
+    {
+      [HandlerType.InvokeMessage]: this.bindIpcInvoke,
+      [HandlerType.Event]: this.bindIpcEvent,
+      [HandlerType.Subscription]: this.bindIpcSubscription,
+    };
 
   bindIpcInvoke(pattern: string) {
-    const handler: MessageHandler = this.messageHandlers.get(pattern);
     ipcMain.handle(pattern, (event, ...args) => {
+      const handler: MessageHandler = this.messageHandlers.get(pattern);
+
+      if (!handler) {
+        return this.logger.warn(`No handlers for message ${pattern}`);
+      }
+
       return invokeTransport(handler, {
         event,
         args,
@@ -28,8 +34,13 @@ export class IpcStrategy extends Server implements CustomTransportStrategy {
   }
 
   bindIpcEvent(pattern: string) {
-    const handler: MessageHandler = this.messageHandlers.get(pattern);
     ipcMain.on(pattern, (event, ...args) => {
+      const handler: MessageHandler = this.messageHandlers.get(pattern);
+
+      if (!handler) {
+        return this.logger.warn(`No handlers for message ${pattern}`);
+      }
+
       eventTransport(handler, {
         event,
         args,
@@ -48,7 +59,7 @@ export class IpcStrategy extends Server implements CustomTransportStrategy {
     for (const [pattern, handler] of this.messageHandlers) {
       const handlerType: HandlerType = handler.extras.handlerType;
       this.logger.debug(`[${handlerType}] ${pattern}`);
-      this.handlerMap[handlerType].call(this, pattern);
+      this.handlerMap[handlerType]?.call(this, pattern);
     }
 
     this.messageHandlers.get('createWindow')({});

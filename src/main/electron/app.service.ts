@@ -1,9 +1,9 @@
 import { app } from 'electron';
 import { Subject } from 'rxjs';
 
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-@Injectable({ scope: Scope.DEFAULT })
+@Injectable()
 export class AppService {
   private shutdownListener$: Subject<void> = new Subject();
 

@@ -1,14 +1,13 @@
-import { Controller, Inject } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { IpcEvent, IpcInvoke } from '../ipc/ipc.decorator';
 import { Payload } from '@nestjs/microservices';
 import { BrowserWindow, IpcMainInvokeEvent, app } from 'electron';
 import { join } from 'path';
 import { AppService } from '../electron/app.service';
-import { ProviderKey } from 'src/common/constants/provider';
 
 @Controller('window')
 export class WindowController {
-  constructor(@Inject(ProviderKey.APP) private appService: AppService) {}
+  constructor(private readonly appService: AppService) {}
 
   @IpcInvoke('getWindowSize')
   public async getWindowSize(@Payload('event') event: IpcMainInvokeEvent) {
