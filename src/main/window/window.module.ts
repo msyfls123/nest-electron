@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common';
 
-import { WindowService } from './window.service';
+import { ElectronModule } from '../electron/electron.module';
+import { WindowController } from './window.controller';
 
 @Module({
-  providers: [WindowService],
+  imports: [ElectronModule],
+  providers: [],
+  controllers: [WindowController],
 })
 export class WindowModule {}

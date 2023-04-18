@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { WindowModule } from './window/window.module';
+import { AppService } from './electron/app.service';
+import { ElectronModule } from './electron/electron.module';
 import { IpcModule } from './ipc/ipc.module';
+import { WindowModule } from './window/window.module';
 
 @Module({
-  imports: [WindowModule, IpcModule],
-  controllers: [AppController],
+  imports: [WindowModule, IpcModule, ElectronModule],
   providers: [AppService],
 })
 export class AppModule {}
