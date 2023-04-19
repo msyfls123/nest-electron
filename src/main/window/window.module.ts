@@ -1,7 +1,8 @@
+import { AppService } from '~/main/electron/app.service';
+import { LogService } from '~/main/monitor/log.service';
+
 import { Module } from '@nestjs/common';
 
-import { AppService } from '../electron/app.service';
-import { LogService } from '../monitor/log.service';
 import { WindowController } from './window.controller';
 
 @Module({

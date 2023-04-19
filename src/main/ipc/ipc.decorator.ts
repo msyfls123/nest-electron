@@ -1,4 +1,4 @@
-import { HandlerType } from 'src/common/constants/meta';
+import { HandlerType } from '~/common/constants/meta';
 
 import { applyDecorators } from '@nestjs/common';
 import { EventPattern, MessagePattern } from '@nestjs/microservices';

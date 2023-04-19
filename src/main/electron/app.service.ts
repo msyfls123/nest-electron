@@ -3,8 +3,8 @@ import { Readable } from 'stream';
 import { app, protocol } from 'electron';
 import nodeFetch from 'node-fetch-unix';
 import { Subject } from 'rxjs';
-import { SOCKET_SCHEMA } from 'src/common/constants/meta';
-import { getSocketUrl } from 'src/common/utils/socket';
+import { SOCKET_SCHEMA } from '~/common/constants/meta';
+import { getSocketUrl } from '~/common/utils/socket';
 
 import { Injectable } from '@nestjs/common';
 

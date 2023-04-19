@@ -2,7 +2,7 @@ import {
   IpcEventPayload,
   IpcInvokePayload,
   Transport,
-} from 'src/common/interfaces/transport';
+} from '~/common/interfaces/transport';
 
 export const invokeTransport: Transport<IpcInvokePayload> = (
   handler,

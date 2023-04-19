@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import { HandlerType } from 'src/common/constants/meta';
+import { HandlerType } from '~/common/constants/meta';
 
 import {
   CustomTransportStrategy,

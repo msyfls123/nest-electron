@@ -1,18 +1,23 @@
 import { Controller } from '@nestjs/common';
-import { IpcEvent, IpcInvoke } from '../ipc/ipc.decorator';
+import { IpcEvent, IpcInvoke } from '~/main/ipc/ipc.decorator';
 import { Payload } from '@nestjs/microservices';
 import { BrowserWindow, IpcMainInvokeEvent, app } from 'electron';
 import { join } from 'path';
-import { AppService } from '../electron/app.service';
+import { AppService } from '~/main/electron/app.service';
 import { Observable, interval, map } from 'rxjs';
-import { Sse } from '@nestjs/common/decorators';
+import { Get, Sse } from '@nestjs/common/decorators';
 import { MessageEvent } from '@nestjs/common/interfaces';
-import { LogService } from '../monitor/log.service';
+import { LogService } from '~/main/monitor/log.service';
 
 @Controller('window')
 export class WindowController {
   constructor(private appService: AppService, private logger: LogService) {
     this.logger.setContext(WindowController.name);
+  }
+
+  @Get()
+  public root() {
+    return 'Hello World!';
   }
 
   @IpcInvoke('getWindowSize')
