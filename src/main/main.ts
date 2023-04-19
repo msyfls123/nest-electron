@@ -11,7 +11,9 @@ import { AppService } from './electron/app.service';
 import { IpcStrategy } from './transport/ipc-strategy';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    forceCloseConnections: true,
+  });
 
   app.connectMicroservice({
     strategy: new IpcStrategy(),
@@ -21,8 +23,7 @@ async function bootstrap() {
   const socketPath = getSocketPath(SOCKET_SCHEMA);
   await (os.platform() === 'win32'
     ? Promise.resolve()
-    : // eslint-disable-next-line @typescript-eslint/no-empty-function
-      unlink(socketPath).catch(() => {}));
+    : unlink(socketPath).catch(console.error));
   await app.listen(getSocketPath(SOCKET_SCHEMA));
 
   app.get(AppService).subscribeToShutdown(app.close);
