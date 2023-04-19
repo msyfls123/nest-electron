@@ -42,7 +42,7 @@ export class AppService {
       const urlObj = new URL(url);
       const newUrl = getSocketUrl(SOCKET_SCHEMA, urlObj.pathname);
 
-      return nodeFetch(newUrl).then((res) => {
+      return nodeFetch(newUrl, req).then((res) => {
         const readable = new Readable().wrap(res.body);
         return {
           ...res,
