@@ -9,7 +9,8 @@
 </head>
 <body>
     Main Window
-    <button onclick="fire()">Click</button>
+    <button onclick="fire()">Get Size</button>
+    <button onclick="createWindow()">Create Window</button>
     <p id="place">...</p>
 
     <script>
@@ -18,6 +19,17 @@
         require('electron').ipcRenderer.invoke('getWindowSize').then(size => {
           htmx.find('#place').innerText = size.join(',')
         })
+      }
+      function createWindow() {
+        require('electron').ipcRenderer.send('createWindow')
+      }
+    </script>
+    <script type="text/javascript">
+      const eventSource = new EventSource('nest-electron:///window/sse');
+      eventSource.onmessage = ({ data }) => {
+        const message = document.createElement('li');
+        message.innerText = 'New message: ' + data;
+        document.body.appendChild(message);
       }
     </script>
 </body>

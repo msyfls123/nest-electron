@@ -1,4 +1,4 @@
-export const IPC_SUBSCRITION_META = '__ipcSubscription__';
+export const SOCKET_SCHEMA = 'nest-electron';
 
 export enum HandlerType {
   InvokeMessage = 'invoke-message',

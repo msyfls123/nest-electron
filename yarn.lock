@@ -2099,10 +2099,10 @@ electron-to-chromium@^1.4.284:
   resolved "https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.4.367.tgz#d9ddc529ba2315fc852b722c359e4a40e86aa742"
   integrity sha512-mNuDxb+HpLhPGUKrg0hSxbTjHWw8EziwkwlJNkFUj3W60ypigLDRVz04vU+VRsJPi8Gub+FDhYUpuTm9xiEwRQ==
 
-electron@^24.1.2:
-  version "24.1.2"
-  resolved "https://registry.npmjs.org/electron/-/electron-24.1.2.tgz#8dd0b4928a08236be4791d39535d1d35cc05f04b"
-  integrity sha512-V0isWbyLYiXrSCcB4lrSVhS/U56NFGfuqHyc+yEPkyhhvY+h4F85cYGdEiZlXp6XjHT+/CLHmw0ltK54g9lvDw==
+electron@25.0.0-alpha.4:
+  version "25.0.0-alpha.4"
+  resolved "https://mirrors.tencent.com/npm/electron/-/electron-25.0.0-alpha.4.tgz#7877993832d06e751962e24ce519fcb28bb406cd"
+  integrity sha512-mQOkVOgJjy3NeMfsqi3fNgqn3FBNPYY2zqTqK5dyQSZo4LVxljasFqn9AsoFhWzDQNoPdnBh/wsiq6FihfN6kw==
   dependencies:
     "@electron/get" "^2.0.0"
     "@types/node" "^18.11.18"
@@ -3838,6 +3838,11 @@ node-emoji@1.11.0:
   integrity sha512-wo2DpQkQp7Sjm2A0cq+sN7EHKO6Sl0ctXeBdFZrL9T9+UywORbufTcTZxom8YqpLQt/FqNMUkOpkZrJVYSKD3A==
   dependencies:
     lodash "^4.17.21"
+
+node-fetch-unix@^2.3.0:
+  version "2.3.0"
+  resolved "https://mirrors.tencent.com/npm/node-fetch-unix/-/node-fetch-unix-2.3.0.tgz#b5e49024846ed86aa14c2f0e418fd46850266d4d"
+  integrity sha512-ngVgjZl1n1dZRR8BIX/UKU3Q0cfkQ4byUVcV132xW/+zPF79sVo2td2576mzIGJibi7E0Azcx2gpy66BoV2hrg==
 
 node-fetch@^2.6.1:
   version "2.6.9"
