@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 
-import { app, protocol } from 'electron';
+import { App, app, protocol } from 'electron';
 import nodeFetch from 'node-fetch-unix';
 import { Subject } from 'rxjs';
 import { SOCKET_SCHEMA } from '~/common/constants/meta';
@@ -8,11 +8,15 @@ import { getSocketUrl } from '~/common/utils/socket';
 
 import { Injectable } from '@nestjs/common';
 
+import { LogService } from '../monitor/log.service';
+
 @Injectable()
 export class AppService {
   private shutdownListener$: Subject<void> = new Subject();
 
-  public constructor() {
+  public constructor(private logger: LogService) {
+    this.logger.setContext(AppService.name);
+    this.logger.debug('AppService Started');
     app.on('quit', () => this.shutdown());
     this.handleProtocol();
   }
@@ -30,6 +34,10 @@ export class AppService {
   // Wait until app ready event
   ready() {
     return app.whenReady();
+  }
+
+  getPath(name: Parameters<App['getPath']>[0]) {
+    return app.getPath(name);
   }
 
   private async handleProtocol() {
