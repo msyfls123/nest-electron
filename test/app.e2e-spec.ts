@@ -1,3 +1,5 @@
+import os from 'os';
+
 import request from 'supertest';
 import { AppService } from '~/main/electron/app.service';
 
@@ -12,6 +14,10 @@ describe('AppController (e2e)', () => {
   class MockAppService {
     ready() {
       return Promise.resolve();
+    }
+
+    getPath() {
+      return os.tmpdir();
     }
   }
 

@@ -1,13 +1,12 @@
-import { AppService } from '~/main/electron/app.service';
-import { LogService } from '~/main/monitor/log.service';
+import { DatabaseModule } from '~/main/database/database.module';
 
 import { Module } from '@nestjs/common';
 
 import { WindowController } from './window.controller';
 
 @Module({
-  imports: [],
-  providers: [AppService, LogService],
+  imports: [DatabaseModule],
+  providers: [],
   controllers: [WindowController],
 })
 export class WindowModule {}

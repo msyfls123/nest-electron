@@ -9,10 +9,26 @@
 </head>
 <body>
     Main Window
-    <button onclick="fire()">Get Size</button>
+
     <button onclick="createWindow()">Create Window</button>
-    <button onclick="closeServerSidePush()">Close Server-Side-Push</button>
-    <p id="place">...</p>
+
+    <article style="display: flex;">
+      <aside style="flex: 0 0 60%">
+        <h2>Size:</h2>
+        <span id="place"></span>
+        <button onclick="fire()">Get Size</button>
+        <h2>Record:</h2>
+        <button hx-post="nest-electron:///window/1" hx-target="#record">record</button>
+        <p id="record">...</p>
+        <h2>All Records:</h2>
+        <button hx-get="nest-electron:///window/all" hx-target="#all">Get All</button>
+        <p id="all">...</p>
+      </aside>
+      <main>
+        <h2>Meesages:</h2>
+        <button onclick="closeServerSidePush()">Close Server-Side-Push</button>
+      </main>
+    </article>
 
     <script>
       const htmx = module.exports
@@ -30,7 +46,7 @@
       eventSource.onmessage = ({ data }) => {
         const message = document.createElement('li');
         message.innerText = 'New message: ' + data;
-        document.body.appendChild(message);
+        document.querySelector('main').appendChild(message);
       }
       function closeServerSidePush() {
         eventSource.close();

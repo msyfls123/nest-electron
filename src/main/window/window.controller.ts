@@ -5,14 +5,22 @@ import { BrowserWindow, IpcMainInvokeEvent, app } from 'electron';
 import { join } from 'path';
 import { AppService } from '~/main/electron/app.service';
 import { Observable, interval, map } from 'rxjs';
-import { Get, Sse } from '@nestjs/common/decorators';
+import { Get, Param, Post, Sse } from '@nestjs/common/decorators';
 import { MessageEvent } from '@nestjs/common/interfaces';
 import { LogService } from '~/main/monitor/log.service';
+import { DatabaseService } from '../database/database.service';
 
 @Controller('window')
 export class WindowController {
-  constructor(private appService: AppService, private logger: LogService) {
+  private database: PouchDB.Database;
+
+  constructor(
+    private appService: AppService,
+    private logger: LogService,
+    dbService: DatabaseService,
+  ) {
     this.logger.setContext(WindowController.name);
+    this.database = dbService.getDatabase('window');
   }
 
   @Get()
@@ -43,9 +51,35 @@ export class WindowController {
     win.loadURL(url);
   }
 
+  @Get('/all')
+  public findAll() {
+    return this.database.allDocs({
+      include_docs: true,
+    });
+  }
+
+  @Post('/:id')
+  public async record(@Param('id') id: string) {
+    const db = this.database;
+    try {
+      const doc = await db.get(id);
+      return db.put({
+        _id: id,
+        _rev: doc._rev,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+    } catch (err) {
+      this.logger.error(err);
+      return db.put({
+        _id: id,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+    }
+  }
+
   @Sse('sse')
   sse(): Observable<MessageEvent> {
-    this.logger.log('Receive sse event');
+    this.logger.log('Receive sse event...');
     return interval(3000).pipe(map((_) => ({ data: { hello: 'world' } })));
   }
 }
