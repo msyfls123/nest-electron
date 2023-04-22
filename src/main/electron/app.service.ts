@@ -1,8 +1,9 @@
 import { Readable } from 'stream';
 
-import { App, app, protocol } from 'electron';
+import * as Electron from 'electron';
 import nodeFetch from 'node-fetch-unix';
 import { Subject } from 'rxjs';
+import { ReadableStream } from 'stream/web';
 import { SOCKET_SCHEMA } from '~/common/constants/meta';
 import { getSocketUrl } from '~/common/utils/socket';
 
@@ -17,7 +18,7 @@ export class AppService {
   public constructor(private logger: LogService) {
     this.logger.setContext(AppService.name);
     this.logger.debug('AppService Started');
-    app.on('quit', () => this.shutdown());
+    this.bindAppQuit();
     this.handleProtocol();
   }
 
@@ -26,21 +27,38 @@ export class AppService {
     this.shutdownListener$.subscribe(() => shutdownFn());
   }
 
-  // Emit the shutdown event
-  shutdown() {
-    this.shutdownListener$.next();
+  public getElectron() {
+    return Electron;
   }
 
   // Wait until app ready event
-  ready() {
+  public ready() {
+    const { app } = this.getElectron();
     return app.whenReady();
   }
 
-  getPath(name: Parameters<App['getPath']>[0]) {
+  public getPath(name: Parameters<Electron.App['getPath']>[0]) {
+    const { app } = this.getElectron();
     return app.getPath(name);
   }
 
+  // Emit the shutdown event
+  private shutdown() {
+    this.shutdownListener$.next();
+  }
+
   private async handleProtocol() {
+    const { protocol } = this.getElectron();
+    protocol.registerSchemesAsPrivileged([
+      {
+        scheme: SOCKET_SCHEMA,
+        privileges: {
+          supportFetchAPI: true,
+          stream: true,
+        },
+      },
+    ]);
+
     await this.ready();
 
     if (protocol.isProtocolHandled(SOCKET_SCHEMA)) return;
@@ -50,7 +68,17 @@ export class AppService {
       const urlObj = new URL(url);
       const newUrl = getSocketUrl(SOCKET_SCHEMA, urlObj.pathname);
 
-      return nodeFetch(newUrl, req).then((res) => {
+      const body = req.body
+        ? Readable.fromWeb(req.body as ReadableStream<Uint8Array>)
+        : undefined;
+      const newReq = {
+        ...req,
+        method: req.method,
+        headers: req.headers,
+        body,
+      };
+
+      return nodeFetch(newUrl, newReq).then((res) => {
         const readable = new Readable().wrap(res.body);
         return {
           ...res,
@@ -59,5 +87,10 @@ export class AppService {
         };
       });
     });
+  }
+
+  private bindAppQuit() {
+    const { app } = this.getElectron();
+    app.on('quit', () => this.shutdown());
   }
 }

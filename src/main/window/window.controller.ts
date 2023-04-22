@@ -1,14 +1,20 @@
 import { Controller } from '@nestjs/common';
 import { IpcEvent, IpcInvoke } from '~/main/ipc/ipc.decorator';
 import { Payload } from '@nestjs/microservices';
-import { BrowserWindow, IpcMainInvokeEvent, app } from 'electron';
-import { join } from 'path';
+import { IpcMainInvokeEvent } from 'electron';
+import { join, resolve } from 'path';
 import { AppService } from '~/main/electron/app.service';
 import { Observable, interval, map } from 'rxjs';
-import { Get, Param, Post, Sse } from '@nestjs/common/decorators';
+import { Body, Get, Param, Post, Sse } from '@nestjs/common/decorators';
 import { MessageEvent } from '@nestjs/common/interfaces';
 import { LogService } from '~/main/monitor/log.service';
 import { DatabaseService } from '../database/database.service';
+import { SessionService } from '../session/session.service';
+
+class WebviewPayload {
+  partition: string;
+  'select-partition': string;
+}
 
 @Controller('window')
 export class WindowController {
@@ -17,6 +23,7 @@ export class WindowController {
   constructor(
     private appService: AppService,
     private logger: LogService,
+    private session: SessionService,
     dbService: DatabaseService,
   ) {
     this.logger.setContext(WindowController.name);
@@ -30,6 +37,7 @@ export class WindowController {
 
   @IpcInvoke('getWindowSize')
   public async getWindowSize(@Payload('event') event: IpcMainInvokeEvent) {
+    const { BrowserWindow } = this.appService.getElectron();
     const browserWindow = BrowserWindow.fromWebContents(event.sender);
     return browserWindow.getSize();
   }
@@ -38,17 +46,47 @@ export class WindowController {
   public async createWindow() {
     await this.appService.ready();
 
+    const { BrowserWindow, app } = this.appService.getElectron();
+
+    const preloadPath = resolve(app.getAppPath(), '../renderer/preload.js');
     const win = new BrowserWindow({
       width: 1000,
       height: 800,
       webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        sandbox: false,
+        preload: preloadPath,
       },
     });
     const url = `file://${join(app.getAppPath(), '../renderer/main.html')}`;
     win.loadURL(url);
+  }
+
+  @Post('/webview')
+  public async webview(@Body() payload: WebviewPayload) {
+    const partition = payload.partition || payload['select-partition'];
+    const session = await this.session.get(partition);
+
+    const { BrowserWindow } = this.appService.getElectron();
+    const win = new BrowserWindow({
+      width: 1200,
+      height: 800,
+      title: `Session: ${partition}`,
+      webPreferences: {
+        session,
+      },
+    });
+    const url = 'https://docs.qq.com/desktop';
+    win.loadURL(url);
+  }
+
+  @Get('/sessions')
+  public async sessions() {
+    const sessions = await this.session.all();
+    return `<select name="select-partition">
+      <option value="">Not select</option>
+      ${sessions
+        .map((ses) => `<option value="${ses}">Partition: ${ses}</option>`)
+        .join('\n')}
+    </select>`;
   }
 
   @Get('/all')

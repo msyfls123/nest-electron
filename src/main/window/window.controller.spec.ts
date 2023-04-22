@@ -7,6 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from '../database/database.service';
 import { AppService } from '../electron/app.service';
 import { LogService } from '../monitor/log.service';
+import { SessionService } from '../session/session.service';
 import { WindowController } from './window.controller';
 
 const Pouch = PouchDB.plugin(PouchDBMemoryAdapter);
@@ -32,10 +33,20 @@ describe('WindowController', () => {
     }
   }
 
+  class MockSessionService {}
+
   beforeEach(async () => {
     module = await Test.createTestingModule({
       imports: [],
-      providers: [AppService, LogService, DatabaseService],
+      providers: [
+        AppService,
+        LogService,
+        DatabaseService,
+        {
+          provide: SessionService,
+          useClass: MockSessionService,
+        },
+      ],
       controllers: [WindowController],
     })
       .overrideProvider(AppService)

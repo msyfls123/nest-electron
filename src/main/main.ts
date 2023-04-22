@@ -24,7 +24,7 @@ async function bootstrap() {
   await (os.platform() === 'win32'
     ? Promise.resolve()
     : unlink(socketPath).catch(console.error));
-  await app.listen(getSocketPath(SOCKET_SCHEMA));
+  await app.listen(socketPath);
 
   app.get(AppService).subscribeToShutdown(app.close);
 }

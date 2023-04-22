@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://unpkg.com/htmx.org@1.9.0/dist/htmx.min.js"></script>
 </head>
 <body>
     Main Window
@@ -23,6 +22,18 @@
         <h2>All Records:</h2>
         <button hx-get="nest-electron:///window/all" hx-target="#all">Get All</button>
         <p id="all">...</p>
+
+        <form
+          onsubmit="mySubmit(event);return false;"
+          method="post"
+          action="nest-electron:///window/webview"
+        >
+          <h2>New Session</h2>
+          <label>Partition</label>
+          <input type="text" name="partition"></input>
+          <div hx-get="nest-electron:///window/sessions" hx-trigger="load"></div>
+          <input type="submit" value="Submit"></input>
+        </form>
       </aside>
       <main>
         <h2>Meesages:</h2>
@@ -30,15 +41,29 @@
       </main>
     </article>
 
+    <script src="https://unpkg.com/htmx.org@1.9.0/dist/htmx.js"></script>
     <script>
-      const htmx = module.exports
       function fire() {
-        require('electron').ipcRenderer.invoke('getWindowSize').then(size => {
+        nest.getWindowSize().then(size => {
           htmx.find('#place').innerText = size.join(',')
         })
       }
       function createWindow() {
-        require('electron').ipcRenderer.send('createWindow')
+        nest.createWindow()
+      }
+      function mySubmit(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(e.target)
+        fetch(form.action, {
+          method: form.method,
+          // headers: {
+          //   'Content-Type': 'application/json'
+          // },
+          // body: JSON.stringify(Object.fromEntries(formData.entries())),
+          body: new URLSearchParams(Object.fromEntries(formData.entries())),
+        });
+        return false;
       }
     </script>
     <script type="text/javascript">
