@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, HttpException, HttpStatus } from '@nestjs/common';
 import { IpcEvent, IpcInvoke } from '~/main/ipc/ipc.decorator';
 import { Payload } from '@nestjs/microservices';
 import { IpcMainInvokeEvent } from 'electron';
@@ -12,7 +12,6 @@ import { DatabaseService } from '../database/database.service';
 import { SessionService } from '../session/session.service';
 
 class WebviewPayload {
-  partition: string;
   'select-partition': string;
 }
 
@@ -62,8 +61,15 @@ export class WindowController {
 
   @Post('/webview')
   public async webview(@Body() payload: WebviewPayload) {
-    const partition = payload.partition || payload['select-partition'];
+    const partition = payload['select-partition'];
     const session = await this.session.get(partition);
+
+    if (!session) {
+      throw new HttpException(
+        `No session of ${partition} found`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     const { BrowserWindow } = this.appService.getElectron();
     const win = new BrowserWindow({
@@ -71,22 +77,11 @@ export class WindowController {
       height: 800,
       title: `Session: ${partition}`,
       webPreferences: {
-        session,
+        partition: session.partition,
       },
     });
-    const url = 'https://docs.qq.com/desktop';
-    win.loadURL(url);
-  }
 
-  @Get('/sessions')
-  public async sessions() {
-    const sessions = await this.session.all();
-    return `<select name="select-partition">
-      <option value="">Not select</option>
-      ${sessions
-        .map((ses) => `<option value="${ses}">Partition: ${ses}</option>`)
-        .join('\n')}
-    </select>`;
+    win.loadURL(session.homepage);
   }
 
   @Get('/all')

@@ -1,3 +1,4 @@
+import { SessionInfo } from '~/common/constants/config';
 import { SESSION_PERSIST } from '~/common/constants/meta';
 
 import { Injectable } from '@nestjs/common';
@@ -18,19 +19,21 @@ export class SessionService {
 
   public async get(partition: string) {
     partition = String(partition);
-    const sessions = new Set((await this.commonConfig.get('sessions')) || []);
-    sessions.add(partition);
-    await this.commonConfig.set('sessions', Array.from(sessions));
-    this.logService.log('all partitions:', Array.from(sessions).join('\n'));
-    this.logService.log(`from partition [${partition}]`);
-
-    return this.appService
-      .getElectron()
-      .session.fromPartition(`${SESSION_PERSIST}${partition}`);
+    const sessions = (await this.commonConfig.get('sessions')) ?? {};
+    return sessions[partition];
   }
 
-  public async all() {
-    const sessions = new Set((await this.commonConfig.get('sessions')) || []);
-    return Array.from(sessions);
+  public async set(info: SessionInfo) {
+    const sessions = (await this.commonConfig.get('sessions')) ?? {};
+    const partition = `${SESSION_PERSIST}${info.partition}`;
+    sessions[partition] = {
+      ...info,
+      partition,
+    };
+    return this.commonConfig.set('sessions', sessions);
+  }
+
+  public async all(): Promise<Record<string, SessionInfo>> {
+    return (await this.commonConfig.get('sessions')) ?? {};
   }
 }

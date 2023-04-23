@@ -1,3 +1,8 @@
+export interface SessionInfo {
+  partition: string;
+  homepage: string;
+}
+
 export interface CommonConfig {
-  sessions: string[];
+  sessions: Record<string, SessionInfo>;
 }

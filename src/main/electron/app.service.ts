@@ -1,7 +1,7 @@
 import { Readable } from 'stream';
 
 import * as Electron from 'electron';
-import nodeFetch from 'node-fetch-unix';
+import nodeFetch, { RequestInit } from 'node-fetch-unix';
 import { Subject } from 'rxjs';
 import { ReadableStream } from 'stream/web';
 import { SOCKET_SCHEMA } from '~/common/constants/meta';
@@ -71,10 +71,10 @@ export class AppService {
       const body = req.body
         ? Readable.fromWeb(req.body as ReadableStream<Uint8Array>)
         : undefined;
-      const newReq = {
+      const newReq: RequestInit = {
         ...req,
         method: req.method,
-        headers: req.headers,
+        headers: req.headers as any,
         body,
       };
 
@@ -82,9 +82,10 @@ export class AppService {
         const readable = new Readable().wrap(res.body);
         return {
           ...res,
+          status: res.status,
           headers: res.headers || {},
           body: Readable.toWeb(readable),
-        };
+        } as unknown as Response;
       });
     });
   }

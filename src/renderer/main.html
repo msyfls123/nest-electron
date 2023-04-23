@@ -15,7 +15,7 @@
       <aside style="flex: 0 0 60%">
         <h2>Size:</h2>
         <span id="place"></span>
-        <button onclick="fire()">Get Size</button>
+        <button onclick="getSize()">Get Size</button>
         <h2>Record:</h2>
         <button hx-post="nest-electron:///window/1" hx-target="#record">record</button>
         <p id="record">...</p>
@@ -24,15 +24,38 @@
         <p id="all">...</p>
 
         <form
-          onsubmit="mySubmit(event);return false;"
-          method="post"
-          action="nest-electron:///window/webview"
+          hx-target="#create-result"
+          hx-post="nest-electron:///session/"
+          id="create-form"
         >
           <h2>New Session</h2>
-          <label>Partition</label>
-          <input type="text" name="partition"></input>
-          <div hx-get="nest-electron:///window/sessions" hx-trigger="load"></div>
+          <fieldset>
+            <label>
+              Host:
+              <select name="homepage">
+                <option value="https://docs.qq.com/desktop">Docs</option>
+                <option value="https://doc.weixin.qq.com/home/recent">Wecom</option>
+              </select>
+            </label>
+          </fieldset>
+          <fieldset>
+            <label>
+              Partition:
+              <input type="text" name="partition"></input>
+            </label>
+          </fieldset>
           <input type="submit" value="Submit"></input>
+          <p id="create-result"></p>
+        </form>
+        <form
+          hx-post="nest-electron:///window/webview"
+        >
+          <h2>New Webview</h2>
+          <div
+            hx-get="nest-electron:///session/"
+            hx-trigger="load, load-sessions from:body"
+          ></div>
+          <input type="submit" value="New webview with Session"></input>
         </form>
       </aside>
       <main>
@@ -43,7 +66,7 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.0/dist/htmx.js"></script>
     <script>
-      function fire() {
+      function getSize() {
         nest.getWindowSize().then(size => {
           htmx.find('#place').innerText = size.join(',')
         })
@@ -51,20 +74,10 @@
       function createWindow() {
         nest.createWindow()
       }
-      function mySubmit(e) {
-        e.preventDefault();
-        const form = e.target;
-        const formData = new FormData(e.target)
-        fetch(form.action, {
-          method: form.method,
-          // headers: {
-          //   'Content-Type': 'application/json'
-          // },
-          // body: JSON.stringify(Object.fromEntries(formData.entries())),
-          body: new URLSearchParams(Object.fromEntries(formData.entries())),
-        });
-        return false;
-      }
+      document.body.addEventListener('load-sessions', (evt) => {
+        console.warn('receive hx-trigger', evt.detail);
+        document.getElementById('create-form').reset();
+      })
     </script>
     <script type="text/javascript">
       const eventSource = new EventSource('nest-electron:///window/sse');
