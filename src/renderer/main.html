@@ -48,14 +48,17 @@
           <p id="create-result"></p>
         </form>
         <form
+          hx-target="#webview-result"
           hx-post="nest-electron:///window/webview"
         >
           <h2>New Webview</h2>
           <div
             hx-get="nest-electron:///session/"
             hx-trigger="load, load-sessions from:body"
+            hx-target="this"
           ></div>
           <input type="submit" value="New webview with Session"></input>
+          <p id="webview-result"></p>
         </form>
       </aside>
       <main>

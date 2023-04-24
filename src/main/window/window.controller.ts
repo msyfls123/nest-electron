@@ -49,7 +49,7 @@ export class WindowController {
 
     const preloadPath = resolve(app.getAppPath(), '../renderer/preload.js');
     const win = new BrowserWindow({
-      width: 1000,
+      width: 1200,
       height: 800,
       webPreferences: {
         preload: preloadPath,
@@ -73,7 +73,7 @@ export class WindowController {
 
     const { BrowserWindow } = this.appService.getElectron();
     const win = new BrowserWindow({
-      width: 1200,
+      width: 1000,
       height: 800,
       title: `Session: ${partition}`,
       webPreferences: {
@@ -82,6 +82,7 @@ export class WindowController {
     });
 
     win.loadURL(session.homepage);
+    return `create BrowserWindow <strong>${win.id}</strong>`;
   }
 
   @Get('/all')
