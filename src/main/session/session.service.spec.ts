@@ -4,17 +4,33 @@ import { CommonConfigService } from '../config/common.service';
 import { AppService } from '../electron/app.service';
 import { LogService } from '../monitor/log.service';
 import { SessionService } from './session.service';
+import { WebRequestService } from './web-request.service';
 
 describe('SessionService', () => {
   let service: SessionService;
 
-  class MockAppService {}
+  class MockAppService {
+    getElectron() {
+      return {
+        session: {
+          defaultSession: {
+            getStoragePath: () => 'default',
+          },
+        },
+      };
+    }
+  }
 
   class MockLogService {
     private name;
     setContext(name) {
       this.name = name;
     }
+    log = jest.fn();
+  }
+
+  class MockWebRequest {
+    setup = jest.fn();
   }
 
   class MockCommonConfigService {}
@@ -34,6 +50,10 @@ describe('SessionService', () => {
         {
           provide: CommonConfigService,
           useClass: MockCommonConfigService,
+        },
+        {
+          provide: WebRequestService,
+          useClass: MockWebRequest,
         },
       ],
     }).compile();

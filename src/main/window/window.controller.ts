@@ -1,15 +1,29 @@
 import { Controller, HttpException, HttpStatus } from '@nestjs/common';
 import { IpcEvent, IpcInvoke } from '~/main/ipc/ipc.decorator';
 import { Payload } from '@nestjs/microservices';
-import { IpcMainInvokeEvent } from 'electron';
-import { join, resolve } from 'path';
+import { IpcMainInvokeEvent, WebContents } from 'electron';
+import { resolve } from 'path';
 import { AppService } from '~/main/electron/app.service';
 import { Observable, interval, map } from 'rxjs';
-import { Body, Get, Param, Post, Sse } from '@nestjs/common/decorators';
+import {
+  Body,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Render,
+  Sse,
+} from '@nestjs/common/decorators';
 import { MessageEvent } from '@nestjs/common/interfaces';
 import { LogService } from '~/main/monitor/log.service';
 import { DatabaseService } from '../database/database.service';
 import { SessionService } from '../session/session.service';
+import { WebContent } from '../electron/request.decorator';
+import {
+  HEADER_WEBCONTENTS_ID,
+  API_ORIGIN,
+  PAGE_ORIGIN,
+} from '~/common/constants/meta';
 
 class WebviewPayload {
   'select-partition': string;
@@ -30,8 +44,12 @@ export class WindowController {
   }
 
   @Get()
+  @Render('main')
   public root() {
-    return 'Hello World!';
+    return {
+      origin: API_ORIGIN,
+      msg: 'Hello World!',
+    };
   }
 
   @IpcInvoke('getWindowSize')
@@ -55,7 +73,7 @@ export class WindowController {
         preload: preloadPath,
       },
     });
-    const url = `file://${join(app.getAppPath(), '../renderer/main.html')}`;
+    const url = `${PAGE_ORIGIN}/window/`;
     win.loadURL(url);
   }
 
@@ -93,7 +111,12 @@ export class WindowController {
   }
 
   @Post('/:id')
-  public async record(@Param('id') id: string) {
+  public async record(
+    @Param('id') id: string,
+    @Headers(HEADER_WEBCONTENTS_ID) webContentsId: number,
+    @WebContent() webContents: WebContents,
+  ) {
+    this.logger.log(`Got message from webContents-${webContents?.id}`);
     const db = this.database;
     try {
       const doc = await db.get(id);

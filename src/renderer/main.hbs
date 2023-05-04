@@ -17,15 +17,15 @@
         <span id="place"></span>
         <button onclick="getSize()">Get Size</button>
         <h2>Record:</h2>
-        <button hx-post="chrome-extension://app/window/1" hx-target="#record">record</button>
+        <button hx-post="{{ origin }}/window/1" hx-target="#record">record</button>
         <p id="record">...</p>
         <h2>All Records:</h2>
-        <button hx-get="chrome-extension://app/window/all" hx-target="#all">Get All</button>
+        <button hx-get="{{ origin }}/window/all" hx-target="#all">Get All</button>
         <p id="all">...</p>
 
         <form
           hx-target="#create-result"
-          hx-post="chrome-extension://app/session/"
+          hx-post="{{ origin }}/session/"
           id="create-form"
         >
           <h2>New Session</h2>
@@ -49,11 +49,11 @@
         </form>
         <form
           hx-target="#webview-result"
-          hx-post="chrome-extension://app/window/webview"
+          hx-post="{{ origin }}/window/webview"
         >
           <h2>New Webview</h2>
           <div
-            hx-get="chrome-extension://app/session/"
+            hx-get="{{ origin }}/session/"
             hx-trigger="load, load-sessions from:body"
             hx-target="this"
           ></div>
@@ -83,7 +83,7 @@
       })
     </script>
     <script type="text/javascript">
-      const eventSource = new EventSource('chrome-extension://app/window/sse');
+      const eventSource = new EventSource('{{ origin }}/window/sse');
       eventSource.onmessage = ({ data }) => {
         const message = document.createElement('li');
         message.innerText = 'New message: ' + data;

@@ -1,11 +1,7 @@
-import { Readable } from 'stream';
-
 import * as Electron from 'electron';
-import nodeFetch, { RequestInit } from 'node-fetch-unix';
 import { Subject } from 'rxjs';
-import { ReadableStream } from 'stream/web';
-import { SOCKET_SCHEMA } from '~/common/constants/meta';
-import { getSocketUrl } from '~/common/utils/socket';
+import { API_SCHEMA, PAGE_SCHEMA } from '~/common/constants/meta';
+import { redirectRequest } from '~/common/utils/socket';
 
 import { Injectable } from '@nestjs/common';
 
@@ -51,7 +47,7 @@ export class AppService {
     const { protocol } = this.getElectron();
     protocol.registerSchemesAsPrivileged([
       {
-        scheme: SOCKET_SCHEMA,
+        scheme: API_SCHEMA,
         privileges: {
           supportFetchAPI: true,
           stream: true,
@@ -61,33 +57,10 @@ export class AppService {
 
     await this.ready();
 
-    if (protocol.isProtocolHandled(SOCKET_SCHEMA)) return;
+    if (protocol.isProtocolHandled(API_SCHEMA)) return;
 
-    protocol.handle(SOCKET_SCHEMA, (req) => {
-      const url = req.url;
-      const urlObj = new URL(url);
-      const newUrl = getSocketUrl(SOCKET_SCHEMA, urlObj.pathname);
-
-      const body = req.body
-        ? Readable.fromWeb(req.body as ReadableStream<Uint8Array>)
-        : undefined;
-      const newReq: RequestInit = {
-        ...req,
-        method: req.method,
-        headers: req.headers as any,
-        body,
-      };
-
-      return nodeFetch(newUrl, newReq).then((res) => {
-        const readable = new Readable().wrap(res.body);
-        return {
-          ...res,
-          status: res.status,
-          headers: res.headers || {},
-          body: Readable.toWeb(readable),
-        } as unknown as Response;
-      });
-    });
+    protocol.handle(API_SCHEMA, redirectRequest);
+    protocol.handle(PAGE_SCHEMA, redirectRequest);
   }
 
   private bindAppQuit() {
