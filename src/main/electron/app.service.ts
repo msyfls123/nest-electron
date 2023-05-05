@@ -1,7 +1,6 @@
 import * as Electron from 'electron';
 import { Subject } from 'rxjs';
 import { API_SCHEMA, PAGE_SCHEMA } from '~/common/constants/meta';
-import { redirectRequest } from '~/common/utils/socket';
 
 import { Injectable } from '@nestjs/common';
 
@@ -53,14 +52,14 @@ export class AppService {
           stream: true,
         },
       },
+      {
+        scheme: PAGE_SCHEMA,
+        privileges: {
+          supportFetchAPI: true,
+          stream: true,
+        },
+      },
     ]);
-
-    await this.ready();
-
-    if (protocol.isProtocolHandled(API_SCHEMA)) return;
-
-    protocol.handle(API_SCHEMA, redirectRequest);
-    protocol.handle(PAGE_SCHEMA, redirectRequest);
   }
 
   private bindAppQuit() {

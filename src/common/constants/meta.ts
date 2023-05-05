@@ -1,3 +1,4 @@
+// https://github.com/electron/electron/pull/23972
 export const API_SCHEMA = 'chrome-extension';
 export const API_ORIGIN = `${API_SCHEMA}://electron.app`;
 export const PAGE_SCHEMA = 'nest-electron';

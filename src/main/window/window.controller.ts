@@ -100,7 +100,7 @@ export class WindowController {
     });
 
     win.loadURL(session.homepage);
-    return `create BrowserWindow <strong>${win.id}</strong>`;
+    return `Created BrowserWindow <strong>${win.id}</strong>`;
   }
 
   @Get('/all')

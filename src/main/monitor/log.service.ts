@@ -1,6 +1,6 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable, Scope } from '@nestjs/common';
 
-@Injectable()
+@Injectable({ scope: Scope.TRANSIENT })
 export class LogService extends ConsoleLogger {
   customLog() {
     this.warn('Please feed the cat!');

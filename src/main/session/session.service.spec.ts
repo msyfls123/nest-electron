@@ -13,6 +13,7 @@ describe('SessionService', () => {
     getElectron() {
       return {
         session: {
+          fromPartition: jest.fn(),
           defaultSession: {
             getStoragePath: () => 'default',
           },
@@ -33,7 +34,9 @@ describe('SessionService', () => {
     setup = jest.fn();
   }
 
-  class MockCommonConfigService {}
+  class MockCommonConfigService {
+    get = jest.fn(() => Promise.resolve({}));
+  }
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({

@@ -1,7 +1,13 @@
 import { Session } from 'electron';
 import { memoize } from 'lodash';
+import { Subject } from 'rxjs';
 import { SessionInfo } from '~/common/constants/config';
-import { SESSION_PERSIST } from '~/common/constants/meta';
+import {
+  API_SCHEMA,
+  PAGE_SCHEMA,
+  SESSION_PERSIST,
+} from '~/common/constants/meta';
+import { redirectRequest } from '~/common/utils/socket';
 
 import { Injectable } from '@nestjs/common';
 
@@ -12,14 +18,16 @@ import { WebRequestService } from './web-request.service';
 
 @Injectable()
 export class SessionService {
-  constructor(
+  private session$ = new Subject<Session>();
+
+  public constructor(
     private readonly appService: AppService,
     private readonly logService: LogService,
     private readonly commonConfig: CommonConfigService,
     private readonly webRequestService: WebRequestService,
   ) {
     this.logService.setContext(SessionService.name);
-    this.setupWebRequest(this.appService.getElectron().session.defaultSession);
+    this.settleSessionCreated();
   }
 
   public async get(partition: string) {
@@ -34,7 +42,7 @@ export class SessionService {
     const session = this.appService
       .getElectron()
       .session.fromPartition(partition);
-    this.setupWebRequest(session);
+    this.session$.next(session);
     sessions[partition] = {
       ...info,
       partition,
@@ -46,8 +54,25 @@ export class SessionService {
     return (await this.commonConfig.get('sessions')) ?? {};
   }
 
-  private setupWebRequest = memoize((session: Session) => {
-    this.logService.log(`Set WebRequest For ${session.getStoragePath()}`);
+  private settleSessionCreated() {
+    this.session$.subscribe((session) => {
+      this.setupSession(session);
+    });
+
+    const sessionKls = this.appService.getElectron().session;
+    this.session$.next(sessionKls.defaultSession);
+
+    this.commonConfig.get('sessions').then((sessions) => {
+      Object.values(sessions)
+        .map((info) => sessionKls.fromPartition(info.partition))
+        .forEach((session) => this.session$.next(session));
+    });
+  }
+
+  private setupSession = memoize((session: Session) => {
+    this.logService.log(`Setup Session For ${session.getStoragePath()}`);
     this.webRequestService.setup(session);
+    session.protocol.handle(API_SCHEMA, redirectRequest);
+    session.protocol.handle(PAGE_SCHEMA, redirectRequest);
   });
 }

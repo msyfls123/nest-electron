@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { LogService } from './log.service';
 
 describe('LogService', () => {
@@ -9,7 +10,7 @@ describe('LogService', () => {
       providers: [LogService],
     }).compile();
 
-    service = module.get<LogService>(LogService);
+    service = await module.resolve<LogService>(LogService);
   });
 
   it('should be defined', () => {
