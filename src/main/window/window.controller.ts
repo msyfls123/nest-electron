@@ -22,7 +22,7 @@ import { WebContent } from '../electron/request.decorator';
 import {
   HEADER_WEBCONTENTS_ID,
   API_ORIGIN,
-  PAGE_ORIGIN,
+  APP_ORIGIN,
 } from '~/common/constants/meta';
 
 class WebviewPayload {
@@ -73,7 +73,7 @@ export class WindowController {
         preload: preloadPath,
       },
     });
-    const url = `${PAGE_ORIGIN}/window/`;
+    const url = `${APP_ORIGIN}/window/`;
     win.loadURL(url);
   }
 

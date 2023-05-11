@@ -1,6 +1,6 @@
 import * as Electron from 'electron';
 import { Subject } from 'rxjs';
-import { API_SCHEMA, PAGE_SCHEMA } from '~/common/constants/meta';
+import { API_SCHEMA, APP_SCHEMA } from '~/common/constants/meta';
 
 import { Injectable } from '@nestjs/common';
 
@@ -53,7 +53,7 @@ export class AppService {
         },
       },
       {
-        scheme: PAGE_SCHEMA,
+        scheme: APP_SCHEMA,
         privileges: {
           supportFetchAPI: true,
           stream: true,

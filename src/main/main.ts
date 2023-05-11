@@ -2,7 +2,7 @@ import os from 'os';
 import path from 'path';
 
 import { unlink } from 'fs/promises';
-import { API_SCHEMA } from 'src/common/constants/meta';
+import { APP_SCHEMA } from 'src/common/constants/meta';
 import { getSocketPath } from 'src/common/utils/socket';
 
 import { NestApplication, NestFactory } from '@nestjs/core';
@@ -31,7 +31,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
 
   // socket
-  const socketPath = getSocketPath(API_SCHEMA);
+  const socketPath = getSocketPath(APP_SCHEMA);
   await (os.platform() === 'win32'
     ? Promise.resolve()
     : unlink(socketPath).catch(console.error));

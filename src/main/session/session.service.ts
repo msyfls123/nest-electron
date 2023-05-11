@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { SessionInfo } from '~/common/constants/config';
 import {
   API_SCHEMA,
-  PAGE_SCHEMA,
+  APP_SCHEMA,
   SESSION_PERSIST,
 } from '~/common/constants/meta';
 import { redirectRequest } from '~/common/utils/socket';
@@ -73,6 +73,6 @@ export class SessionService {
     this.logService.log(`Setup Session For ${session.getStoragePath()}`);
     this.webRequestService.setup(session);
     session.protocol.handle(API_SCHEMA, redirectRequest);
-    session.protocol.handle(PAGE_SCHEMA, redirectRequest);
+    session.protocol.handle(APP_SCHEMA, redirectRequest);
   });
 }

@@ -16,6 +16,9 @@ describe('SessionService', () => {
           fromPartition: jest.fn(),
           defaultSession: {
             getStoragePath: () => 'default',
+            protocol: {
+              handle: jest.fn(),
+            },
           },
         },
       };

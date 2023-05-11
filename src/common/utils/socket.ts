@@ -4,7 +4,7 @@ import { Readable } from 'stream';
 import nodeFetch, { RequestInit } from 'node-fetch-unix';
 import { ReadableStream } from 'stream/web';
 
-import { API_SCHEMA } from '../constants/meta';
+import { APP_SCHEMA } from '../constants/meta';
 
 export function getSocketPath(socketName: string) {
   if (os.platform() === 'win32') {
@@ -23,7 +23,7 @@ export function getSocketUrl(socketName: string, pathname = '') {
 export function redirectRequest(req: Request) {
   const url = req.url;
   const urlObj = new URL(url);
-  const newUrl = getSocketUrl(API_SCHEMA, urlObj.pathname);
+  const newUrl = getSocketUrl(APP_SCHEMA, urlObj.pathname);
 
   const body = req.body
     ? Readable.fromWeb(req.body as ReadableStream<Uint8Array>)
