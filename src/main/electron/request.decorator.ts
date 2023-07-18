@@ -7,6 +7,8 @@ export const WebContent = createParamDecorator(
     if (ctx.getType() === 'http') {
       const request = ctx.switchToHttp().getRequest<IRequest>();
       return request.webContents;
+    } else if (ctx.getType() === 'rpc') {
+      return ctx.switchToRpc().getData().event.sender;
     }
   },
 );

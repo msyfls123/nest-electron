@@ -53,9 +53,12 @@ export class WindowController {
   }
 
   @IpcInvoke('getWindowSize')
-  public async getWindowSize(@Payload('event') event: IpcMainInvokeEvent) {
+  public async getWindowSize(
+    @Payload('event') event: IpcMainInvokeEvent,
+    @WebContent() webContents: WebContents,
+  ) {
     const { BrowserWindow } = this.appService.getElectron();
-    const browserWindow = BrowserWindow.fromWebContents(event.sender);
+    const browserWindow = BrowserWindow.fromWebContents(webContents);
     return browserWindow.getSize();
   }
 
