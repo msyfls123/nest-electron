@@ -12,6 +12,7 @@ import {
   Param,
   Post,
   Render,
+  SetMetadata,
   Sse,
 } from '@nestjs/common/decorators';
 import { MessageEvent } from '@nestjs/common/interfaces';
@@ -138,6 +139,7 @@ export class WindowController {
   }
 
   @Sse('sse')
+  @SetMetadata('all', 'right')
   sse(): Observable<MessageEvent> {
     this.logger.log('Receive sse event...');
     return interval(3000).pipe(map((_) => ({ data: { hello: 'world' } })));
